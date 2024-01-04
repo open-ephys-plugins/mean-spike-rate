@@ -27,6 +27,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <EditorHeaders.h>
 #include "MeanSpikeRate.h"
 
+class ElectrodeViewport : public Viewport
+{
+public:
+    ElectrodeViewport() {};
+    ~ElectrodeViewport() {};
+
+    void resized() override {};
+
+    //Override mouseWheelMove to prevent scrolling conflict with editor viewport
+    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel) override {}
+};
+
 class MeanSpikeRateEditor 
     : public GenericEditor
 {
@@ -47,18 +59,18 @@ private:
     void layoutChannelButtons();
 
     // UI elements
-    ScopedPointer<Viewport> spikeChannelViewport;
+    ScopedPointer<ElectrodeViewport> spikeChannelViewport;
     ScopedPointer<Component> spikeChannelCanvas;
     OwnedArray<ElectrodeButton> spikeChannelButtons;
 
     // constants
-    static const int WIDTH = 200;
-    static const int CONTENT_WIDTH = WIDTH - 7;
     static const int BUTTON_WIDTH = 35;
     static const int BUTTON_HEIGHT = 15;
-    static const int ROW_LENGTH = CONTENT_WIDTH / BUTTON_WIDTH;
-    static const int MARGIN = (CONTENT_WIDTH - ROW_LENGTH * BUTTON_WIDTH) / 2;
-    static const int BUTTON_VIEWPORT_HEIGHT = 50;
+
+    static const int WIDTH = 200;
+    static const int VIEWPORT_WIDTH = 170;
+    static const int VIEWPORT_HEIGHT = 50;
+    static const int BUTTONS_PER_ROW = 4; //CONTENT_WIDTH / BUTTON_WIDTH;
 
     const String OUTPUT_TOOLTIP = "Continuous channel to overwrite with the spike rate (meaned over time and selected electrodes)";
     const String TIME_CONST_TOOLTIP = "Time for the influence of a single spike to decay to 36.8% (1/e) of its initial value (larger = smoother, smaller = faster reaction to changes)";

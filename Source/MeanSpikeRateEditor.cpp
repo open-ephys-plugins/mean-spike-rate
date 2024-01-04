@@ -34,9 +34,9 @@ MeanSpikeRateEditor::MeanSpikeRateEditor(MeanSpikeRate* parentNode)
     auto processor = static_cast<MeanSpikeRate*>(getProcessor()); 
 
     // spike channels
-    spikeChannelViewport = new Viewport();
-    spikeChannelViewport->setScrollBarsShown(false, false, true, false);
-    spikeChannelViewport->setBounds(0, HEADER_HEIGHT, CONTENT_WIDTH, BUTTON_VIEWPORT_HEIGHT);
+    spikeChannelViewport = new ElectrodeViewport();
+    spikeChannelViewport->setScrollBarsShown(true, false, false, false);
+    spikeChannelViewport->setBounds(10, 30, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
     spikeChannelCanvas = new Component();
     spikeChannelViewport->setViewedComponent(spikeChannelCanvas);
@@ -45,7 +45,7 @@ MeanSpikeRateEditor::MeanSpikeRateEditor(MeanSpikeRate* parentNode)
 
     // other controls
     int xPos = 10;
-    int yPos = HEADER_HEIGHT + BUTTON_VIEWPORT_HEIGHT + 5;
+    int yPos = 85;
     const int TEXT_HEIGHT = 20;
 
     addSelectedChannelsParameterEditor("Output", 10, yPos + TEXT_HEIGHT);
@@ -179,17 +179,16 @@ ElectrodeButton* MeanSpikeRateEditor::makeNewChannelButton(SpikeChannel* chan)
 void MeanSpikeRateEditor::layoutChannelButtons()
 {
     int nButtons = spikeChannelButtons.size();
-    int nRows = nButtons > 0 ? (nButtons - 1) / ROW_LENGTH + 1 : 0;
-    spikeChannelCanvas->setBounds(0, 0, WIDTH, MARGIN * 2 + nRows * BUTTON_HEIGHT);
+    int nRows = nButtons > 0 ? (nButtons - 1) / BUTTONS_PER_ROW + 1 : 0;
+    spikeChannelCanvas->setBounds(0, 0, VIEWPORT_WIDTH, nRows * BUTTON_HEIGHT);
 
     for (int kButton = 0; kButton < nButtons; ++kButton)
     {
-        int row = kButton / ROW_LENGTH;
-        int col = kButton % ROW_LENGTH;
+        int row = kButton / BUTTONS_PER_ROW;
+        int col = kButton % BUTTONS_PER_ROW;
 
         ElectrodeButton* button = spikeChannelButtons[kButton];
-        button->setBounds(MARGIN + col * BUTTON_WIDTH, MARGIN + row * BUTTON_HEIGHT,
-            BUTTON_WIDTH, BUTTON_HEIGHT);
+        button->setBounds(col * BUTTON_WIDTH, row * BUTTON_HEIGHT, BUTTON_WIDTH, BUTTON_HEIGHT);
 
         spikeChannelCanvas->addAndMakeVisible(button);
     }    
