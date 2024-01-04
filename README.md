@@ -2,7 +2,7 @@
 
 This [Open Ephys](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491527/Open+Ephys+GUI) plugin estimates the mean spike rate over time and channels. Uses an exponentially weighted moving average to estimate a temporal mean (with adjustable time constant), and averages the rate across selected spike channels (electrodes). Outputs the resulting rate onto a selected continuous channel (overwriting its contents).
 
-![Mean Spike Rate editor](msr_editor.png)
+![Mean Spike Rate editor](Resources/msr_editor.png)
 
 ## Installing:
 
