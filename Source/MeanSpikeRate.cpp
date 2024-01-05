@@ -76,7 +76,6 @@ void MeanSpikeRate::process(AudioBuffer<float>& continuousBuffer)
         }
         double timeConstSec = timeConstMs / 1000.0;
         
-        //double timeConstSamp = timeConstSec * getDataChannel(outputChan)->getSampleRate();
         double timeConstSamp = timeConstSec * getSampleRate(streamId);
         decayPerSample = exp(-1 / timeConstSamp);
 
@@ -112,7 +111,7 @@ void MeanSpikeRate::handleSpike(SpikePtr spike)
         return;
     }
 
-    int samplePosition = spike->getSampleNumber();
+    int samplePosition = spikeEvent->spikeChannel->currentSampleIndex;
 
     jassert(samplePosition >= currSample); // spike sample must not have already been finished
 

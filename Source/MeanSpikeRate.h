@@ -86,6 +86,7 @@ private:
     int currSample;          // per-buffer - allows processing samples while handling events
     double spikeAmp;         // updated once per buffer
     double decayPerSample;   // updated once per buffer
+
     float currMean;
     float* wpBuffer;
 
