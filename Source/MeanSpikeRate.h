@@ -26,43 +26,59 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ProcessorHeaders.h>
 
-/* Estimates the mean spike rate over time and channels. Uses an exponentially
- * weighted moving average to estimate a temporal mean (with adjustable time
- * constant), and averages the rate across selected spike channels (electrodes).
- * Outputs the resulting rate onto a selected continuous channel (overwriting its contents).
- *
- * @see GenericProcessor
- */
-
+/** 
+    Stores settings for a single stream. Used by the StreamSettings class.
+*/
 class MeanSpikeRateSettings {
 public:
     float timeConstMs;
     int outputChan;
 };
 
+/**
+
+ * This processor estimates the mean spike rate over time and channels. Uses an exponentially
+ * weighted moving average to estimate a temporal mean (with adjustable time
+ * constant), and averages the rate across selected spike channels (electrodes).
+ * Outputs the resulting rate onto a selected continuous channel (overwriting its contents).
+ *
+ * @see GenericProcessor
+ */
 class MeanSpikeRate : public GenericProcessor
 {
     friend class MeanSpikeRateEditor;
 
 public:
+
+    /** Constructor */
     MeanSpikeRate();
+
+    /** Destructor */
     ~MeanSpikeRate();
 
-    bool hasEditor() const { return true; }
+    /** Creates the editor component */
     AudioProcessorEditor* createEditor() override;
 
-    void process(AudioSampleBuffer& continuousBuffer) override;
+    /** Overwrites selected continuous channel with mean spike rate */
+    void process(AudioBuffer<float>& buffer) override;
+
+    /** Called when each spike is received */
     void handleSpike(SpikePtr spike) override;
 
+    /** Called when parameters are modified */
     void parameterValueChanged(Parameter* param) override;
 
-    // Stores/loads spike channel selection state. Output channel and time constant are handled automatically
-    void loadCustomParametersFromXml(XmlElement* parentElement) override;
+    /** Stores spike channel selection state */
     void saveCustomParametersToXml(XmlElement* parentElement) override;
 
+    /** Loads spike channel selection state */
+    void loadCustomParametersFromXml(XmlElement* parentElement) override;
+
 private:
-    // functions
+    /** Returns total number of electrodes used to compute spike rate */
     int getNumActiveElectrodes();
+
+    /** Called when upstream settings are modified */
     void updateSettings() override;;
 
     // internals

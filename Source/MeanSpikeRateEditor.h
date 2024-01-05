@@ -27,43 +27,67 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <EditorHeaders.h>
 #include "MeanSpikeRate.h"
 
+/** 
+    Displays buttons for available electrodes
+*/
 class ElectrodeViewport : public Viewport
 {
 public:
+    /** Constructor */
     ElectrodeViewport() {};
+
+    /** Destructor */
     ~ElectrodeViewport() {};
 
+    /** Called when editor changes size */
     void resized() override {};
 
     //Override mouseWheelMove to prevent scrolling conflict with editor viewport
     void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel) override {}
 };
 
+/** 
+
+	Editor for MeanSpikeRate processor
+
+*/
 class MeanSpikeRateEditor 
     : public GenericEditor
 {
 public:
+
+    /** Constructor */
     MeanSpikeRateEditor(MeanSpikeRate* parentNode);
+
+    /** Destructor */
     ~MeanSpikeRateEditor();
 
+    /** Updates electrode buttons */
     void updateSettings() override;
 
+    /** Returns number of selected electrodes */
     int getNumActiveElectrodes();
 
+    /** Returns true if a given channel is enabled */
     bool getSpikeChannelEnabled(int index);
+
+    /** Sets whether a given channel is enabled */
     void setSpikeChannelEnabled(int index, bool enabled);
 
 private:
-    // functions
+
+    /** Creates a new electrode button for a given channel*/
     ElectrodeButton* makeNewChannelButton(SpikeChannel* chan);
+
+    /** Sets layout of electrode buttons */
     void layoutChannelButtons();
 
-    // UI elements
+    /** UI elements */
     ScopedPointer<ElectrodeViewport> spikeChannelViewport;
     ScopedPointer<Component> spikeChannelCanvas;
     OwnedArray<ElectrodeButton> spikeChannelButtons;
 
-    // constants
+    /** Constants */
     static const int BUTTON_WIDTH = 35;
     static const int BUTTON_HEIGHT = 15;
 
