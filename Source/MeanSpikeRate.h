@@ -38,6 +38,8 @@ class MeanSpikeRateSettings {
 public:
     float timeConstMs;
     int outputChan;
+
+
 };
 
 class MeanSpikeRate : public GenericProcessor
@@ -72,11 +74,11 @@ private:
 
     // internals
     StreamSettings<MeanSpikeRateSettings> settings;
-    int currSample;          // per-buffer - allows processing samples while handling events
-    double spikeAmp;         // updated once per buffer
-    double decayPerSample;   // updated once per buffer
-    float currMean;
-    float* wpBuffer;
+    std::map<uint16, int> currSample;          // per-buffer - allows processing samples while handling events
+    std::map<uint16, double> spikeAmp;         // updated once per buffer
+    std::map<uint16, float> currMean;
+    std::map<uint16, float*> wpBuffer;
+    std::map<uint16, double> decayPerSample;   // updated once per buffer
 
     const String OUTPUT_TOOLTIP = "Continuous channel to overwrite with the spike rate (meaned over time and selected electrodes)";
     const String TIME_CONST_TOOLTIP = "Time for the influence of a single spike to decay to 36.8% (1/e) of its initial value (larger = smoother, smaller = faster reaction to changes)";

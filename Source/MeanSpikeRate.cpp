@@ -24,11 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MeanSpikeRate.h"
 #include "MeanSpikeRateEditor.h"
 
-MeanSpikeRate::MeanSpikeRate()
-    : GenericProcessor          ("Mean Spike Rate")
-    , currSample                (0)
-    , currMean                  (0.0f)
-    , wpBuffer                  (nullptr)
+MeanSpikeRate::MeanSpikeRate() : GenericProcessor("Mean Spike Rate")
 {
     addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "Output", OUTPUT_TOOLTIP, 1);
     addFloatParameter(Parameter::STREAM_SCOPE, "Time_Const", TIME_CONST_TOOLTIP, 1000.0, 1, std::numeric_limits<float>::max(), 0.001);
@@ -56,49 +52,52 @@ void MeanSpikeRate::process(AudioSampleBuffer& continuousBuffer)
         uint32 numSamples;
         if (getNumInputs() == 0 || (numSamples = getNumSamplesInBlock(streamId)) == 0)
         {
-            return;
+            continue;
         }
 
         int numActiveChannels = continuousChannels.size();
-
         // Check that active channel is valid. Output chan is the global index, so use all continuous channels
         if (!(outputChan > -1 && outputChan < numActiveChannels)) 
         {
-            return;
+            continue;
         }
 
         // update algorithm parameters
         // we assume each spike channel has the same sample rate as the selected channel.
         // if not, this would get a lot more complicated.
-        int numActiveElectrodes = getNumActiveElectrodes();
+        int numActiveElectrodes = 0;
+        for (auto spikeChannel : stream->getSpikeChannels())
+        {
+            numActiveElectrodes += isActive(spikeChannel);
+        }
         if (numActiveElectrodes == 0)
         {
-            return;
+            continue;
         }
         double timeConstSec = timeConstMs / 1000.0;
         
         //double timeConstSamp = timeConstSec * getDataChannel(outputChan)->getSampleRate();
         double timeConstSamp = timeConstSec * getSampleRate(streamId);
-        decayPerSample = exp(-1 / timeConstSamp);
+        decayPerSample[streamId] = exp(-1 / timeConstSamp);
 
         // the initial amplitude of each spike such that if there is a steady rate of
         // spiking, the average over time of the exponentially weighted mean
         // (at the limit where the process has been continuing forever)
         // equals the actual spike rate in Hz. This is just 1 / (time const in sec).
-        spikeAmp = 1 / (timeConstSec * numActiveElectrodes);
+        spikeAmp[streamId] = 1 / (timeConstSec * numActiveElectrodes);
 
         // initialize first sample
-        currSample = 0;
-        wpBuffer = continuousBuffer.getWritePointer(outputChan);
+        currSample[streamId] = 0;
 
         // handle each spike, calculating the mean spike rate of samples in between.
         checkForEvents(true);
 
         // after all spikes are handled, finish writing samples
-        for (int samp = currSample; samp < numSamples; ++samp)
+        wpBuffer[streamId] = continuousBuffer.getWritePointer(outputChan);
+        for (int samp = currSample[streamId]; samp < numSamples; ++samp)
         {
-            wpBuffer[samp] = currMean;
-            currMean *= decayPerSample;
+            wpBuffer[streamId][samp] = currMean[streamId];
+            currMean[streamId] *= decayPerSample[streamId];
         }
     }
     
@@ -114,20 +113,21 @@ void MeanSpikeRate::handleSpike(SpikePtr spike)
         return;
     }
 
-    int samplePosition = spikeEvent->spikeChannel->currentSampleIndex;
+    int streamId = spikeChannel->getStreamId();
+    int samplePosition = spikeChannel->currentSampleIndex;
 
-    jassert(samplePosition >= currSample); // spike sample must not have already been finished
+    jassert(samplePosition >= currSample[streamId]); // spike sample must not have already been finished
 
     // write samples up to the spike position
-    for (int samp = currSample; samp < samplePosition; ++samp)
+    for (int samp = currSample[streamId]; samp < samplePosition; ++samp)
     {
-        wpBuffer[samp] = currMean; //problem 
-        currMean *= decayPerSample;
+        wpBuffer[streamId][samp] = currMean[streamId]; //problem 
+        currMean[streamId] *= decayPerSample[streamId];
     }
-    currSample = samplePosition;
+    currSample[streamId] = samplePosition;
 
     // add spike contribution
-    currMean += spikeAmp;
+    currMean[streamId] += spikeAmp[streamId];
 }
 
 void MeanSpikeRate::updateSettings()
