@@ -27,6 +27,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <EditorHeaders.h>
 #include "MeanSpikeRate.h"
 
+class ElectrodeStateButton : public ElectrodeButton
+{
+public:
+    ElectrodeStateButton(SpikeChannel* chan) : ElectrodeButton(0)
+    {
+        identifier = chan->getIdentifier();
+    }
+    ~ElectrodeStateButton() {};
+    String getIdentifier() { return identifier; }
+private:
+    String identifier;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ElectrodeStateButton);
+};
+
 class ElectrodeViewport : public Viewport
 {
 public:
@@ -39,8 +53,7 @@ public:
     void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel) override {}
 };
 
-class MeanSpikeRateEditor 
-    : public GenericEditor
+class MeanSpikeRateEditor : public GenericEditor, public Button::Listener
 {
 public:
     MeanSpikeRateEditor(MeanSpikeRate* parentNode);
@@ -48,20 +61,24 @@ public:
 
     void updateSettings() override;
 
+    void selectedStreamHasChanged() override { updateSettings(); }
+
     int getNumActiveElectrodes();
+
+    void buttonClicked(Button* button) override;
 
     bool getSpikeChannelEnabled(int index);
     void setSpikeChannelEnabled(int index, bool enabled);
 
 private:
     // functions
-    ElectrodeButton* makeNewChannelButton(SpikeChannel* chan);
+    ElectrodeStateButton* makeNewChannelButton(SpikeChannel* chan);
     void layoutChannelButtons();
 
     // UI elements
     ScopedPointer<ElectrodeViewport> spikeChannelViewport;
     ScopedPointer<Component> spikeChannelCanvas;
-    OwnedArray<ElectrodeButton> spikeChannelButtons;
+    OwnedArray<ElectrodeStateButton> spikeChannelButtons;
 
     // constants
     static const int BUTTON_WIDTH = 35;

@@ -39,7 +39,6 @@ MeanSpikeRate::~MeanSpikeRate() {
 
 AudioProcessorEditor* MeanSpikeRate::createEditor()
 {
-    
     editor = std::make_unique<MeanSpikeRateEditor>(this);
     return editor.get();
 }
@@ -48,10 +47,12 @@ void MeanSpikeRate::process(AudioSampleBuffer& continuousBuffer)
 {
     for (auto stream : getDataStreams())
     {
+        // Get parameters for current stream
         const uint16 streamId = stream->getStreamId();
         MeanSpikeRateSettings* msrSettings = settings[streamId];
         float timeConstMs = msrSettings->timeConstMs;
         int outputChan = msrSettings->outputChan;
+
         uint32 numSamples;
         if (getNumInputs() == 0 || (numSamples = getNumSamplesInBlock(streamId)) == 0)
         {
@@ -106,8 +107,9 @@ void MeanSpikeRate::handleSpike(SpikePtr spike)
 {
     Spike* spikeEvent = spike.get();
 
-    // Make sure the spike came from an active channel
-    if (!spikeChannels.contains(spikeEvent->spikeChannel))
+    //Check if spike channel is enabled
+    const SpikeChannel* spikeChannel = spikeEvent->spikeChannel;
+    if (!isActive(spikeChannel))
     {
         return;
     }
@@ -175,28 +177,16 @@ int MeanSpikeRate::getNumActiveElectrodes()
 
 void MeanSpikeRate::loadCustomParametersFromXml(XmlElement* parentElement)
 {
+
     auto msrEditor = static_cast<MeanSpikeRateEditor*>(getEditor());
 
     forEachXmlChildElement(*parentElement, mainNode)
     {
         if (mainNode->hasTagName("MeanSpikeRate"))
         {
-            int i = 0;
             forEachXmlChildElement(*mainNode, activeNode)
             {
-                if (activeNode->hasTagName("ACTIVE"))
-                {
-                    if (activeNode->getBoolAttribute("isActive"))
-                    {
-                        msrEditor->setSpikeChannelEnabled(i, true);
-                    }
-                    else
-                    {
-                        msrEditor->setSpikeChannelEnabled(i, false);
-                    }
-
-                    i++;
-                }
+                spikeChannelActive[activeNode->getStringAttribute("channel")] = activeNode->getBoolAttribute("isActive");
             }
         }
     }
@@ -208,8 +198,8 @@ void MeanSpikeRate::saveCustomParametersToXml(XmlElement* parentElement)
     XmlElement* mainNode = parentElement->createNewChildElement("MeanSpikeRate");
     for (auto spikeChannel : spikeChannels)
     {
-        bool active = editor->getSpikeChannelEnabled(spikeChannel->getLocalIndex());
         XmlElement* activeNode = mainNode->createNewChildElement("ACTIVE");
-        activeNode->setAttribute("isActive", active);
+        activeNode->setAttribute("channel", spikeChannel->getIdentifier());
+        activeNode->setAttribute("isActive", isActive(spikeChannel));
     }
 }

@@ -123,6 +123,17 @@ int MeanSpikeRateEditor::getNumActiveElectrodes()
     return numActive;
 }
 
+void MeanSpikeRateEditor::buttonClicked(Button* button)
+{
+    auto processor = static_cast<MeanSpikeRate*>(getProcessor());
+
+    auto electrodeButton = static_cast<ElectrodeStateButton*>(button);
+
+    bool isActive = electrodeButton->getToggleState();
+
+    processor->spikeChannelActive[electrodeButton->getIdentifier()] = isActive;
+}
+
 bool MeanSpikeRateEditor::getSpikeChannelEnabled(int index)
 {
     if (index < 0 || index >= spikeChannelButtons.size())
@@ -135,6 +146,8 @@ bool MeanSpikeRateEditor::getSpikeChannelEnabled(int index)
 
 void MeanSpikeRateEditor::setSpikeChannelEnabled(int index, bool enabled)
 {
+    LOGD("Setting spike channel ", String(index), " to ", enabled);
+    LOGD("Total number of spike channels: ", String(spikeChannelButtons.size()));
     if (index < 0 || index >= spikeChannelButtons.size())
     {
         jassertfalse;
@@ -145,10 +158,15 @@ void MeanSpikeRateEditor::setSpikeChannelEnabled(int index, bool enabled)
 
 /* -------- private ----------- */
 
-ElectrodeButton* MeanSpikeRateEditor::makeNewChannelButton(SpikeChannel* chan)
+ElectrodeStateButton* MeanSpikeRateEditor::makeNewChannelButton(SpikeChannel* chan)
 {
-    auto button = new ElectrodeButton(0);
-    button->setToggleState(true, dontSendNotification);
+
+    auto processor = static_cast<MeanSpikeRate*>(getProcessor());
+
+    bool isActive = processor->isActive(chan);
+
+    auto button = new ElectrodeStateButton(chan);
+    button->setToggleState(isActive, dontSendNotification);
     
     String prefix;
     switch (chan->getChannelType())
@@ -178,6 +196,22 @@ ElectrodeButton* MeanSpikeRateEditor::makeNewChannelButton(SpikeChannel* chan)
 
 void MeanSpikeRateEditor::layoutChannelButtons()
 {
+    //Get the current active stream in the stream editor
+    auto processor = static_cast<MeanSpikeRate*>(getProcessor());
+
+    DataStream* stream = processor->getDataStream(getCurrentStream());
+
+    LOGD("Laying out channel buttons for stream " + stream->getName());
+    
+    //only add spike channels that are associated with this stream
+    spikeChannelButtons.clear();
+    for (auto spikeChannel : stream->getSpikeChannels())
+    {
+        LOGD("Spike channel " + spikeChannel->getName(), " associated with stream: ", stream->getName());
+        spikeChannelButtons.add(makeNewChannelButton(spikeChannel));
+        spikeChannelButtons.getLast()->addListener(this);
+    }
+
     int nButtons = spikeChannelButtons.size();
     int nRows = nButtons > 0 ? (nButtons - 1) / BUTTONS_PER_ROW + 1 : 0;
     spikeChannelCanvas->setBounds(0, 0, VIEWPORT_WIDTH, nRows * BUTTON_HEIGHT);

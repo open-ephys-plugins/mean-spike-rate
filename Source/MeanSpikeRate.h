@@ -51,6 +51,8 @@ public:
     bool hasEditor() const { return true; }
     AudioProcessorEditor* createEditor() override;
 
+    bool isActive(const SpikeChannel* chan) { return spikeChannelActive[chan->getIdentifier()]; };
+
     void process(AudioSampleBuffer& continuousBuffer) override;
     void handleSpike(SpikePtr spike) override;
 
@@ -61,6 +63,9 @@ public:
     void saveCustomParametersToXml(XmlElement* parentElement) override;
 
 private:
+
+    std::map<String, bool> spikeChannelActive;
+
     // functions
     int getNumActiveElectrodes();
     void updateSettings() override;;
