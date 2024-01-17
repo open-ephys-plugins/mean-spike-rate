@@ -38,7 +38,7 @@ extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
 	info->name = "Mean Spike Rate";
-	info->libVersion = "1.0";
+	info->libVersion = "0.1.0";
 	info->numPlugins = NUM_PLUGINS;
 }
 
@@ -47,9 +47,9 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	switch (index)
 	{
 	case 0:
-		info->type = Plugin::PROCESSOR;
+		info->type = Plugin::Type::PROCESSOR;
         info->processor.name = "Mean Spike Rate";
-		info->processor.type = Plugin::Processor::FILTER;
+		info->processor.type = Processor::Type::FILTER;
 		info->processor.creator = &(Plugin::createProcessor<MeanSpikeRate>);
 		break;
 	default:
