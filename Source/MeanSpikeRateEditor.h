@@ -27,47 +27,85 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <EditorHeaders.h>
 #include "MeanSpikeRate.h"
 
+/** 
+
+    Used to change the selection state for a particular electrode
+*/
 class ElectrodeStateButton : public ElectrodeButton
 {
 public:
+
+    /** Constructor */
     ElectrodeStateButton(SpikeChannel* chan) : ElectrodeButton(0)
     {
         identifier = chan->getIdentifier();
     }
+
+    /** Destructor */
     ~ElectrodeStateButton() {};
+
+    /** Returns the identifier string for this electrode */
     String getIdentifier() { return identifier; }
+
 private:
+    
     String identifier;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ElectrodeStateButton);
 };
 
+/** 
+
+    Scrollable viewport for electrode buttons
+
+*/
 class ElectrodeViewport : public Viewport
 {
 public:
+    
+    /** Constructor */
     ElectrodeViewport() {};
+
+    /** Destructor */
     ~ElectrodeViewport() {};
 
+    /** Called when viewport changes size*/
     void resized() override {};
 
-    //Override mouseWheelMove to prevent scrolling conflict with editor viewport
+    /** Override mouseWheelMove to prevent scrolling conflict with editor viewport */
     void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel) override {}
 };
 
+/** 
+
+    Custom editor for MeanSpikeRate processor
+
+*/
 class MeanSpikeRateEditor : public GenericEditor, public Button::Listener
 {
 public:
+    /** Constructor */
     MeanSpikeRateEditor(MeanSpikeRate* parentNode);
+
+    /** Destructor */
     ~MeanSpikeRateEditor();
 
+    /** Updates the UI with the current processor state */
     void updateSettings() override;
 
+    /** Called when the selected stream has changed */
     void selectedStreamHasChanged() override { updateSettings(); }
 
+    /** Returns the number of currently selected electrodes */
     int getNumActiveElectrodes();
 
+    /** Call back for electrode selection buttons*/
     void buttonClicked(Button* button) override;
 
+    /** Returns true if a particular electrode is enabled */
     bool getSpikeChannelEnabled(int index);
+
+    /** Sets the enabled state for a particular electrode */
     void setSpikeChannelEnabled(int index, bool enabled);
 
 private:

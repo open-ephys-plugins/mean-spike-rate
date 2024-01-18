@@ -39,7 +39,7 @@ AudioProcessorEditor* MeanSpikeRate::createEditor()
     return editor.get();
 }
 
-void MeanSpikeRate::process(AudioSampleBuffer& continuousBuffer)
+void MeanSpikeRate::process(AudioBuffer<float>& continuousBuffer)
 {
     for (auto stream : getDataStreams())
     {

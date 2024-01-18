@@ -26,14 +26,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ProcessorHeaders.h>
 
-/* Estimates the mean spike rate over time and channels. Uses an exponentially
- * weighted moving average to estimate a temporal mean (with adjustable time
- * constant), and averages the rate across selected spike channels (electrodes).
- * Outputs the resulting rate onto a selected continuous channel (overwriting its contents).
- *
- * @see GenericProcessor
- */
 
+/**
+
+    Holds settings for each data stream
+
+*/
 class MeanSpikeRateSettings {
 public:
     float timeConstMs;
@@ -42,26 +40,44 @@ public:
 
 };
 
+/* Estimates the mean spike rate over time and channels. Uses an exponentially
+ * weighted moving average to estimate a temporal mean (with adjustable time
+ * constant), and averages the rate across selected spike channels (electrodes).
+ * Outputs the resulting rate onto a selected continuous channel (overwriting its contents).
+ *
+ * @see GenericProcessor
+ */
 class MeanSpikeRate : public GenericProcessor
 {
     friend class MeanSpikeRateEditor;
 
 public:
+
+    /** Constructor */
     MeanSpikeRate();
+
+    /** Destructor */
     ~MeanSpikeRate();
 
-    bool hasEditor() const { return true; }
+    /** Creates the custom editor for this processor */
     AudioProcessorEditor* createEditor() override;
 
+    /** Checks whether an incoming spike channel is selected */
     bool isActive(const SpikeChannel* chan) { return spikeChannelActive[chan->getIdentifier()]; };
 
-    void process(AudioSampleBuffer& continuousBuffer) override;
+    /** Overwrites continuous data with average spike rate */
+    void process(AudioBuffer<float>& continuousBuffer) override;
+
+    /** Called when a spike is received */
     void handleSpike(SpikePtr spike) override;
 
+    /** Called when a parameter is changed */
     void parameterValueChanged(Parameter* param) override;
 
-    // Stores/loads spike channel selection state. Output channel and time constant are handled automatically
+    /** Loads spike channel selection state. */
     void loadCustomParametersFromXml(XmlElement* parentElement) override;
+
+    /** Saves spike channel selection state. */
     void saveCustomParametersToXml(XmlElement* parentElement) override;
 
 private:
