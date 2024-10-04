@@ -114,6 +114,7 @@ private:
     void layoutChannelButtons();
 
     // UI elements
+    ScopedPointer<Label> noInputChannelsLabel;
     ScopedPointer<ElectrodeViewport> spikeChannelViewport;
     ScopedPointer<Component> spikeChannelCanvas;
     OwnedArray<ElectrodeStateButton> spikeChannelButtons;

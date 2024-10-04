@@ -26,8 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 MeanSpikeRate::MeanSpikeRate() : GenericProcessor("Mean Spike Rate")
 {
-    addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "Output", OUTPUT_TOOLTIP, 1);
-    addFloatParameter(Parameter::STREAM_SCOPE, "Time_Const", TIME_CONST_TOOLTIP, 1000.0, 1, std::numeric_limits<float>::max(), 0.001);
+    addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "Output", "Output", OUTPUT_TOOLTIP, 1);
+    addFloatParameter(Parameter::STREAM_SCOPE, "Time_Const", "Time Constant", TIME_CONST_TOOLTIP, "ms", 1000.0, 1, std::numeric_limits<float>::max(), 0.001);
 }
 
 MeanSpikeRate::~MeanSpikeRate() {

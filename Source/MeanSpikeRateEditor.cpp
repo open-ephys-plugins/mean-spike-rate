@@ -29,9 +29,14 @@ MeanSpikeRateEditor::MeanSpikeRateEditor(MeanSpikeRate* parentNode)
     : GenericEditor(parentNode)
 {
     desiredWidth = WIDTH;
-    const int HEADER_HEIGHT = 22;
 
-    auto processor = static_cast<MeanSpikeRate*>(getProcessor()); 
+    auto processor = static_cast<MeanSpikeRate*>(getProcessor());
+
+    noInputChannelsLabel = new Label("NoInputChannelsLabel", "No spike channels available");
+    noInputChannelsLabel->setBounds(10, 10, 200, 20);
+    noInputChannelsLabel->setJustificationType(Justification::centred);
+    noInputChannelsLabel->setColour(Label::textColourId, Colours::grey);
+    noInputChannelsLabel->setVisible(false);
 
     // spike channels
     spikeChannelViewport = new ElectrodeViewport();
@@ -43,13 +48,15 @@ MeanSpikeRateEditor::MeanSpikeRateEditor(MeanSpikeRate* parentNode)
 
     addAndMakeVisible(spikeChannelViewport);
 
-    // other controls
-    int xPos = 10;
-    int yPos = 85;
-    const int TEXT_HEIGHT = 20;
+    addSelectedChannelsParameterEditor(Parameter::ParameterScope::STREAM_SCOPE, "Output", 10, 85);
+    ParameterEditor *outputEditor = getParameterEditor("Output");
+    outputEditor->setLayout(ParameterEditor::Layout::nameOnTop);
+    outputEditor->setSize(90,34);
 
-    addSelectedChannelsParameterEditor("Output", 10, yPos + TEXT_HEIGHT);
-    addTextBoxParameterEditor("Time_Const", 100, yPos);
+    addTextBoxParameterEditor(Parameter::ParameterScope::STREAM_SCOPE, "Time_Const", 108, 85);
+    ParameterEditor *timeConstEditor = getParameterEditor("Time_Const");
+    timeConstEditor->setLayout(ParameterEditor::Layout::nameOnTop);
+    timeConstEditor->setSize(90, 34);
 }
 
 MeanSpikeRateEditor::~MeanSpikeRateEditor() {}
@@ -60,6 +67,18 @@ void MeanSpikeRateEditor::updateSettings()
 
     // update electrode buttons
     auto& spikeChannelArray = processor->spikeChannels;
+
+    if (spikeChannelArray.size() == 0)
+    {
+        spikeChannelViewport->setVisible(false);
+        noInputChannelsLabel->setVisible(true);
+        return;
+    }
+    else
+    {
+        spikeChannelViewport->setVisible(true);
+        noInputChannelsLabel->setVisible(false);
+    }
 
     // make spikeChannelButtons array match the spikeChannelArray
     int numSpikeChans = spikeChannelArray.size();
