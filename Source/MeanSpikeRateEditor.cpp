@@ -32,11 +32,11 @@ MeanSpikeRateEditor::MeanSpikeRateEditor(MeanSpikeRate* parentNode)
 
     auto processor = static_cast<MeanSpikeRate*>(getProcessor());
 
-    noInputChannelsLabel = new Label("NoInputChannelsLabel", "No spike channels available");
-    noInputChannelsLabel->setBounds(10, 10, 200, 20);
+    noInputChannelsLabel = new Label("NoInputChannelsLabel", "No spike channels detected");
+    noInputChannelsLabel->setFont(Font(12.0f, Font::bold));
+    noInputChannelsLabel->setBounds(10, 35, 190, 40);
     noInputChannelsLabel->setJustificationType(Justification::centred);
-    noInputChannelsLabel->setColour(Label::textColourId, Colours::grey);
-    noInputChannelsLabel->setVisible(false);
+    addAndMakeVisible(noInputChannelsLabel);
 
     // spike channels
     spikeChannelViewport = new ElectrodeViewport();
