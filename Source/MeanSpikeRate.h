@@ -59,6 +59,9 @@ public:
     /** Destructor */
     ~MeanSpikeRate();
 
+    /** Registers parameters for this processor */
+    void registerParameters() override;
+
     /** Creates the custom editor for this processor */
     AudioProcessorEditor* createEditor() override;
 
