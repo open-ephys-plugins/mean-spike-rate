@@ -24,8 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MEAN_SPIKE_RATE_EDITOR_H_INCLUDED
 #define MEAN_SPIKE_RATE_EDITOR_H_INCLUDED
 
-#include <EditorHeaders.h>
 #include "MeanSpikeRate.h"
+#include <EditorHeaders.h>
 
 /** 
 
@@ -34,9 +34,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class ElectrodeStateButton : public ElectrodeButton
 {
 public:
-
     /** Constructor */
-    ElectrodeStateButton(SpikeChannel* chan) : ElectrodeButton(0)
+    ElectrodeStateButton (SpikeChannel* chan) : ElectrodeButton (0)
     {
         identifier = chan->getIdentifier();
     }
@@ -48,10 +47,9 @@ public:
     String getIdentifier() { return identifier; }
 
 private:
-    
     String identifier;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ElectrodeStateButton);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ElectrodeStateButton);
 };
 
 /** 
@@ -62,7 +60,6 @@ private:
 class ElectrodeViewport : public Viewport
 {
 public:
-    
     /** Constructor */
     ElectrodeViewport() {};
 
@@ -73,7 +70,7 @@ public:
     void resized() override {};
 
     /** Override mouseWheelMove to prevent scrolling conflict with editor viewport */
-    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel) override {}
+    void mouseWheelMove (const MouseEvent& event, const MouseWheelDetails& wheel) override {}
 };
 
 /** 
@@ -85,7 +82,7 @@ class MeanSpikeRateEditor : public GenericEditor, public Button::Listener
 {
 public:
     /** Constructor */
-    MeanSpikeRateEditor(MeanSpikeRate* parentNode);
+    MeanSpikeRateEditor (MeanSpikeRate* parentNode);
 
     /** Destructor */
     ~MeanSpikeRateEditor();
@@ -100,17 +97,17 @@ public:
     int getNumActiveElectrodes();
 
     /** Call back for electrode selection buttons*/
-    void buttonClicked(Button* button) override;
+    void buttonClicked (Button* button) override;
 
     /** Returns true if a particular electrode is enabled */
-    bool getSpikeChannelEnabled(int index);
+    bool getSpikeChannelEnabled (int index);
 
     /** Sets the enabled state for a particular electrode */
-    void setSpikeChannelEnabled(int index, bool enabled);
+    void setSpikeChannelEnabled (int index, bool enabled);
 
 private:
     // functions
-    ElectrodeStateButton* makeNewChannelButton(SpikeChannel* chan);
+    ElectrodeStateButton* makeNewChannelButton (SpikeChannel* chan);
     void layoutChannelButtons();
 
     // UI elements
@@ -131,7 +128,7 @@ private:
     const String OUTPUT_TOOLTIP = "Continuous channel to overwrite with the spike rate (meaned over time and selected electrodes)";
     const String TIME_CONST_TOOLTIP = "Time for the influence of a single spike to decay to 36.8% (1/e) of its initial value (larger = smoother, smaller = faster reaction to changes)";
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MeanSpikeRateEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MeanSpikeRateEditor);
 };
 
 #endif // MEAN_SPIKE_RATE_EDITOR_H_INCLUDED

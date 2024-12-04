@@ -26,18 +26,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ProcessorHeaders.h>
 
-
 /**
 
     Holds settings for each data stream
 
 */
-class MeanSpikeRateSettings {
+class MeanSpikeRateSettings
+{
 public:
     float timeConstMs;
     int outputChan;
-
-
 };
 
 /* Estimates the mean spike rate over time and channels. Uses an exponentially
@@ -52,7 +50,6 @@ class MeanSpikeRate : public GenericProcessor
     friend class MeanSpikeRateEditor;
 
 public:
-
     /** Constructor */
     MeanSpikeRate();
 
@@ -66,43 +63,43 @@ public:
     AudioProcessorEditor* createEditor() override;
 
     /** Checks whether an incoming spike channel is selected */
-    bool isActive(const SpikeChannel* chan) { return spikeChannelActive[chan->getIdentifier()]; };
+    bool isActive (const SpikeChannel* chan) { return spikeChannelActive[chan->getIdentifier()]; };
 
     /** Overwrites continuous data with average spike rate */
-    void process(AudioBuffer<float>& continuousBuffer) override;
+    void process (AudioBuffer<float>& continuousBuffer) override;
 
     /** Called when a spike is received */
-    void handleSpike(SpikePtr spike) override;
+    void handleSpike (SpikePtr spike) override;
 
     /** Called when a parameter is changed */
-    void parameterValueChanged(Parameter* param) override;
+    void parameterValueChanged (Parameter* param) override;
 
     /** Loads spike channel selection state. */
-    void loadCustomParametersFromXml(XmlElement* parentElement) override;
+    void loadCustomParametersFromXml (XmlElement* parentElement) override;
 
     /** Saves spike channel selection state. */
-    void saveCustomParametersToXml(XmlElement* parentElement) override;
+    void saveCustomParametersToXml (XmlElement* parentElement) override;
 
 private:
-
     std::map<String, bool> spikeChannelActive;
 
     // functions
     int getNumActiveElectrodes();
-    void updateSettings() override;;
+    void updateSettings() override;
+    ;
 
     // internals
     StreamSettings<MeanSpikeRateSettings> settings;
-    std::map<uint16, int> currSample;          // per-buffer - allows processing samples while handling events
-    std::map<uint16, double> spikeAmp;         // updated once per buffer
+    std::map<uint16, int> currSample; // per-buffer - allows processing samples while handling events
+    std::map<uint16, double> spikeAmp; // updated once per buffer
     std::map<uint16, float> currMean;
     std::map<uint16, float*> wpBuffer;
-    std::map<uint16, double> decayPerSample;   // updated once per buffer
+    std::map<uint16, double> decayPerSample; // updated once per buffer
 
     const String OUTPUT_TOOLTIP = "Continuous channel to overwrite with the spike rate (meaned over time and selected electrodes)";
     const String TIME_CONST_TOOLTIP = "Time for the influence of a single spike to decay to 36.8% (1/e) of its initial value (larger = smoother, smaller = faster reaction to changes)";
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MeanSpikeRate);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MeanSpikeRate);
 };
 
 #endif // MEAN_SPIKE_RATE_H_INCLUDED

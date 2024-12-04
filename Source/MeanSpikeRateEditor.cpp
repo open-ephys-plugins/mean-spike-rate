@@ -22,62 +22,62 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "MeanSpikeRateEditor.h"
-#include <string> // stof
 #include <cfloat> // FLT_MAX
+#include <string> // stof
 
-MeanSpikeRateEditor::MeanSpikeRateEditor(MeanSpikeRate* parentNode)
-    : GenericEditor(parentNode)
+MeanSpikeRateEditor::MeanSpikeRateEditor (MeanSpikeRate* parentNode)
+    : GenericEditor (parentNode)
 {
     desiredWidth = WIDTH;
 
-    auto processor = static_cast<MeanSpikeRate*>(getProcessor());
+    auto processor = static_cast<MeanSpikeRate*> (getProcessor());
 
-    noInputChannelsLabel = new Label("NoInputChannelsLabel", "No spike channels detected");
-    noInputChannelsLabel->setFont(Font(12.0f, Font::bold));
-    noInputChannelsLabel->setBounds(10, 35, 190, 40);
-    noInputChannelsLabel->setJustificationType(Justification::centred);
-    addAndMakeVisible(noInputChannelsLabel);
+    noInputChannelsLabel = new Label ("NoInputChannelsLabel", "No spike channels detected");
+    noInputChannelsLabel->setFont (Font (12.0f, Font::bold));
+    noInputChannelsLabel->setBounds (10, 35, 190, 40);
+    noInputChannelsLabel->setJustificationType (Justification::centred);
+    addAndMakeVisible (noInputChannelsLabel);
 
     // spike channels
     spikeChannelViewport = new ElectrodeViewport();
-    spikeChannelViewport->setScrollBarsShown(true, false, false, false);
-    spikeChannelViewport->setBounds(10, 30, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+    spikeChannelViewport->setScrollBarsShown (true, false, false, false);
+    spikeChannelViewport->setBounds (10, 30, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
     spikeChannelCanvas = new Component();
-    spikeChannelViewport->setViewedComponent(spikeChannelCanvas);
+    spikeChannelViewport->setViewedComponent (spikeChannelCanvas);
 
-    addAndMakeVisible(spikeChannelViewport);
+    addAndMakeVisible (spikeChannelViewport);
 
-    addSelectedChannelsParameterEditor(Parameter::ParameterScope::STREAM_SCOPE, "Output", 10, 85);
-    ParameterEditor *outputEditor = getParameterEditor("Output");
-    outputEditor->setLayout(ParameterEditor::Layout::nameOnTop);
-    outputEditor->setSize(90,34);
+    addSelectedChannelsParameterEditor (Parameter::ParameterScope::STREAM_SCOPE, "Output", 10, 85);
+    ParameterEditor* outputEditor = getParameterEditor ("Output");
+    outputEditor->setLayout (ParameterEditor::Layout::nameOnTop);
+    outputEditor->setSize (90, 34);
 
-    addTextBoxParameterEditor(Parameter::ParameterScope::STREAM_SCOPE, "Time_Const", 108, 85);
-    ParameterEditor *timeConstEditor = getParameterEditor("Time_Const");
-    timeConstEditor->setLayout(ParameterEditor::Layout::nameOnTop);
-    timeConstEditor->setSize(90, 34);
+    addTextBoxParameterEditor (Parameter::ParameterScope::STREAM_SCOPE, "Time_Const", 108, 85);
+    ParameterEditor* timeConstEditor = getParameterEditor ("Time_Const");
+    timeConstEditor->setLayout (ParameterEditor::Layout::nameOnTop);
+    timeConstEditor->setSize (90, 34);
 }
 
 MeanSpikeRateEditor::~MeanSpikeRateEditor() {}
 
 void MeanSpikeRateEditor::updateSettings()
 {
-    MeanSpikeRate* processor = static_cast<MeanSpikeRate*>(getProcessor());
+    MeanSpikeRate* processor = static_cast<MeanSpikeRate*> (getProcessor());
 
     // update electrode buttons
     auto& spikeChannelArray = processor->spikeChannels;
 
     if (spikeChannelArray.size() == 0)
     {
-        spikeChannelViewport->setVisible(false);
-        noInputChannelsLabel->setVisible(true);
+        spikeChannelViewport->setVisible (false);
+        noInputChannelsLabel->setVisible (true);
         return;
     }
     else
     {
-        spikeChannelViewport->setVisible(true);
-        noInputChannelsLabel->setVisible(false);
+        spikeChannelViewport->setVisible (true);
+        noInputChannelsLabel->setVisible (false);
     }
 
     // make spikeChannelButtons array match the spikeChannelArray
@@ -86,7 +86,7 @@ void MeanSpikeRateEditor::updateSettings()
     for (int kChan = 0; kChan < numSpikeChans; ++kChan)
     {
         numButtons = spikeChannelButtons.size();
-        jassert(numButtons >= kChan);
+        jassert (numButtons >= kChan);
 
         if (numButtons > kChan)
         {
@@ -103,7 +103,7 @@ void MeanSpikeRateEditor::updateSettings()
                 if (spikeChannelButtons[kButton]->getTooltip() == name)
                 {
                     found = true;
-                    spikeChannelButtons.swap(kChan, kButton);
+                    spikeChannelButtons.swap (kChan, kButton);
                     break;
                 }
             }
@@ -115,14 +115,14 @@ void MeanSpikeRateEditor::updateSettings()
         }
 
         // have to add a new button
-        spikeChannelButtons.insert(kChan, makeNewChannelButton(spikeChannelArray[kChan]));
+        spikeChannelButtons.insert (kChan, makeNewChannelButton (spikeChannelArray[kChan]));
     }
 
     // remove extra buttons
     numButtons = spikeChannelButtons.size();
     if (numButtons > numSpikeChans)
     {
-        spikeChannelButtons.removeLast(numButtons - numSpikeChans);
+        spikeChannelButtons.removeLast (numButtons - numSpikeChans);
     }
 
     // position the buttons
@@ -142,18 +142,18 @@ int MeanSpikeRateEditor::getNumActiveElectrodes()
     return numActive;
 }
 
-void MeanSpikeRateEditor::buttonClicked(Button* button)
+void MeanSpikeRateEditor::buttonClicked (Button* button)
 {
-    auto processor = static_cast<MeanSpikeRate*>(getProcessor());
+    auto processor = static_cast<MeanSpikeRate*> (getProcessor());
 
-    auto electrodeButton = static_cast<ElectrodeStateButton*>(button);
+    auto electrodeButton = static_cast<ElectrodeStateButton*> (button);
 
     bool isActive = electrodeButton->getToggleState();
 
     processor->spikeChannelActive[electrodeButton->getIdentifier()] = isActive;
 }
 
-bool MeanSpikeRateEditor::getSpikeChannelEnabled(int index)
+bool MeanSpikeRateEditor::getSpikeChannelEnabled (int index)
 {
     if (index < 0 || index >= spikeChannelButtons.size())
     {
@@ -163,50 +163,49 @@ bool MeanSpikeRateEditor::getSpikeChannelEnabled(int index)
     return spikeChannelButtons[index]->getToggleState();
 }
 
-void MeanSpikeRateEditor::setSpikeChannelEnabled(int index, bool enabled)
+void MeanSpikeRateEditor::setSpikeChannelEnabled (int index, bool enabled)
 {
     if (index < 0 || index >= spikeChannelButtons.size())
     {
         jassertfalse;
         return;
     }
-    spikeChannelButtons[index]->setToggleState(enabled, sendNotificationSync);
+    spikeChannelButtons[index]->setToggleState (enabled, sendNotificationSync);
 }
 
 /* -------- private ----------- */
 
-ElectrodeStateButton* MeanSpikeRateEditor::makeNewChannelButton(SpikeChannel* chan)
+ElectrodeStateButton* MeanSpikeRateEditor::makeNewChannelButton (SpikeChannel* chan)
 {
+    auto processor = static_cast<MeanSpikeRate*> (getProcessor());
 
-    auto processor = static_cast<MeanSpikeRate*>(getProcessor());
+    bool isActive = processor->isActive (chan);
 
-    bool isActive = processor->isActive(chan);
+    auto button = new ElectrodeStateButton (chan);
+    button->setToggleState (isActive, dontSendNotification);
 
-    auto button = new ElectrodeStateButton(chan);
-    button->setToggleState(isActive, dontSendNotification);
-    
     String prefix;
     switch (chan->getChannelType())
     {
-    case SpikeChannel::SINGLE:
-        prefix = "SE";
-        break;
+        case SpikeChannel::SINGLE:
+            prefix = "SE";
+            break;
 
-    case SpikeChannel::STEREOTRODE:
-        prefix = "ST";
-        break;
+        case SpikeChannel::STEREOTRODE:
+            prefix = "ST";
+            break;
 
-    case SpikeChannel::TETRODE:
-        prefix = "TT";
-        break;
+        case SpikeChannel::TETRODE:
+            prefix = "TT";
+            break;
 
-    default:
-        prefix = "IV";
-        break;
+        default:
+            prefix = "IV";
+            break;
     }
 
-    button->setButtonText(prefix + String(chan->getLocalIndex()));
-    button->setTooltip(chan->getName());
+    button->setButtonText (prefix + String (chan->getLocalIndex()));
+    button->setTooltip (chan->getName());
 
     return button;
 }
@@ -214,21 +213,21 @@ ElectrodeStateButton* MeanSpikeRateEditor::makeNewChannelButton(SpikeChannel* ch
 void MeanSpikeRateEditor::layoutChannelButtons()
 {
     //Get the current active stream in the stream editor
-    auto processor = static_cast<MeanSpikeRate*>(getProcessor());
+    auto processor = static_cast<MeanSpikeRate*> (getProcessor());
 
-    DataStream* stream = processor->getDataStream(getCurrentStream());
-    
+    DataStream* stream = processor->getDataStream (getCurrentStream());
+
     //only add spike channels that are associated with this stream
     spikeChannelButtons.clear();
     for (auto spikeChannel : stream->getSpikeChannels())
     {
-        spikeChannelButtons.add(makeNewChannelButton(spikeChannel));
-        spikeChannelButtons.getLast()->addListener(this);
+        spikeChannelButtons.add (makeNewChannelButton (spikeChannel));
+        spikeChannelButtons.getLast()->addListener (this);
     }
 
     int nButtons = spikeChannelButtons.size();
     int nRows = nButtons > 0 ? (nButtons - 1) / BUTTONS_PER_ROW + 1 : 0;
-    spikeChannelCanvas->setBounds(0, 0, VIEWPORT_WIDTH, nRows * BUTTON_HEIGHT);
+    spikeChannelCanvas->setBounds (0, 0, VIEWPORT_WIDTH, nRows * BUTTON_HEIGHT);
 
     for (int kButton = 0; kButton < nButtons; ++kButton)
     {
@@ -236,8 +235,8 @@ void MeanSpikeRateEditor::layoutChannelButtons()
         int col = kButton % BUTTONS_PER_ROW;
 
         ElectrodeButton* button = spikeChannelButtons[kButton];
-        button->setBounds(col * BUTTON_WIDTH, row * BUTTON_HEIGHT, BUTTON_WIDTH, BUTTON_HEIGHT);
+        button->setBounds (col * BUTTON_WIDTH, row * BUTTON_HEIGHT, BUTTON_WIDTH, BUTTON_HEIGHT);
 
-        spikeChannelCanvas->addAndMakeVisible(button);
-    }    
+        spikeChannelCanvas->addAndMakeVisible (button);
+    }
 }
